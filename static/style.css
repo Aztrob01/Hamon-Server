@@ -1,0 +1,104 @@
+body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 1rem;
+    background-color: #111;
+}
+
+.main-layout {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 2rem;
+    flex-wrap: wrap;
+}
+
+.info-panel {
+    flex: 1;
+    min-width: 300px;
+    width: auto;
+    max-width: 800px;
+    height: auto;
+    background-color: #222;
+    padding: 1rem;
+    border-radius: 10px;
+    margin: 10px;
+}
+
+.chart-panel {
+    flex: 1;
+    min-width: 100px;
+    width: 50%;
+    max-width: 400px;
+    height: auto;
+    padding: 1rem;
+    border-radius: 10px;
+}
+
+canvas {
+    display: block;
+    margin-bottom: 1rem;
+    max-width: 100%;
+}
+
+h1 {
+    color: #b7b7b7;
+    text-align: center;   
+}
+
+p {
+    margin: 10px 0;
+    color: #b7b7b7;
+}
+
+
+button {
+    justify-content: center;
+    margin: 2px;
+    padding-left: 10px;
+    padding-right: 10px;
+    height: 30px;
+    border-radius: 50px;
+    border: 0;
+    background-color: snow;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    font-size: 50%;
+    transition: all .5s ease;
+}
+#sunday:hover {
+    box-shadow: #222 0px 7px 29px 0px;
+    background: #996515;
+    color: snow;
+    letter-spacing: 2px;
+    font-weight: bold;
+}
+#amphibia:hover {
+    box-shadow: #222 0px 7px 29px 0px;
+    background: #004b26;
+    color: snow;
+    letter-spacing: 2px;
+    font-weight: bold;
+}
+#colossus:hover {
+    box-shadow: #222 0px 7px 29px 0px;
+    background: #476f28;
+    color: snow;
+    letter-spacing: 2px;
+    font-weight: bold;
+}
+#jhin:hover {
+    box-shadow: #222 0px 7px 29px 0px;
+    background: #ab2828;
+    color: snow;
+    letter-spacing: 2px;
+    font-weight: bold;
+}
+#default:hover {
+    box-shadow: #222 0px 7px 29px 0px;
+    background: #2c2c2c;
+    color: snow;
+    letter-spacing: 2px;
+    font-weight: bold;
+}

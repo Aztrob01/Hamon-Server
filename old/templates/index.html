@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Monitor Simples</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <!-- Chart.js via CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@2.9.4/dist/Chart.min.js"></script>
+</head>
+
+<body>
+    <div class="container">
+        <h1>Hamon Server</h1>
+        <p><strong>Atualização:</strong> <span id="timestamp">--</span></p>
+        <p><strong>CPU:</strong> <span id="cpu">--%</span></p>
+        <!-- <div id="status-indicator"></div> -->
+        <p>Maior uso: <span id="top_cpu">-- --%</span></p>
+        <p>Média de uso (U10): <span id="media">--%</span></p>
+        <p><strong>RAM:</strong> <span id="mem">--</span></p>
+        <p>Maior uso: <span id="top_mem">-- -- MB</span></p>
+        <p><strong>Disco:</strong> <span id="disk">--</span></p>
+        <p><strong>Sistema:</strong> <span id="os">--</span></p>
+        <p><strong>Processador:</strong> <span id="cpu_info">--</span></p>
+        <p><strong>Tempo Ligado:</strong> <span id="uptime">--</span></p>
+        <!-- Gráficos via Chart.js -->
+        <canvas id="cpuChart" width="400" height="200"></canvas>
+        <br>
+        <canvas id="diskChart" width="400" height="200"></canvas>
+        <br>
+        <!-- User Agent -->
+        <p><strong>Dispositivo:</strong> <span id="agent">--</span></p>
+    </div>
+
+    <script>
+        const ctx = document.getElementById("cpuChart").getContext('2d');
+        const cpuChart = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: [],
+                datasets: [{
+                    label: 'Uso da CPU (%)',
+                    data: [],
+                    borderColor: 'rgb(75, 192, 192)',
+                    tension: 0.2
+                }]
+            },
+            options: {
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        max: 100
+                    }
+                }
+            }
+        });
+
+        const diskctx = document.getElementById("diskChart").getContext('2d');
+        const diskChart = new Chart(diskctx, {
+            type: 'line',
+            data: {
+                labels: [],
+                datasets: [{
+                    label: 'Leitura (MB/s)',
+                    data: [],
+                    borderColor: 'rgb(255, 165, 00)',
+                    tension: 0.2
+                },
+                {
+                    label: 'Escrita (MB/s)',
+                    data: [],
+                    borderColor: 'rgb(255, 99, 132)',
+                    tension: 0.2
+                }]
+            },
+            options: {
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        max: 100
+                    }
+                }
+            }
+        });
+
+        const cpumedia = [];
+        function updateData() {
+            var xhr = new XMLHttpRequest();
+            xhr.open("GET", "/data", true);
+            xhr.onload = function () {
+                var data = JSON.parse(this.responseText);
+
+                document.getElementById('cpu').innerText = data.cpu_percent + "%";
+                const color = data.cpu_percent <= 50 ? '#4CAF50' : data.cpu_percent < 70 ? '#FFC107' : '#f44336';  // operador ternário
+                document.getElementById('cpu').style.color = color;
+                document.getElementById('top_cpu').innerText = data.top_cpu_name + ' (' + data.top_cpu_usag + '). ';
+                cpumedia.push(data.cpu_percent);
+                if (cpumedia.length > 10) {
+                    cpumedia.shift();
+                }
+                const avgcpu = cpumedia.reduce((a, b) => a + b, 0) / cpumedia.length;
+
+                document.getElementById('media').innerText = avgcpu.toFixed(1) + '%';
+                document.getElementById('agent').innerText = data.user_agent;
+                document.getElementById('mem').innerText = data.mem_used + " / " + data.mem_total + " (" + data.mem_percent + "%)";
+                document.getElementById('top_mem').innerText = data.top_mem_name + ' (' + data.top_mem_usag + '). ';
+                document.getElementById('os').innerText = data.os;
+                document.getElementById('cpu_info').innerText = data.cpu;
+                document.getElementById('uptime').innerText = data.uptime;
+                document.getElementById('timestamp').innerText = data.timestamp;
+                document.getElementById('disk').innerText = 'Leitura: ' + data.disk_read + ' / Escrita: ' + data.disk_write;
+
+
+                const time = data.timestamp;
+                const cpu = data.cpu_percent;
+                if (cpuChart.data.labels.length >= 10) {
+                    cpuChart.data.labels.shift();
+                    cpuChart.data.datasets[0].data.shift();
+                }
+
+                cpuChart.data.labels.push(time);
+                cpuChart.data.datasets[0].data.push(cpu);
+                cpuChart.update();
+
+                const diskRead = parseFloat(data.disk_read);
+                const DiskWrite = parseFloat(data.disk_write);
+                if (diskChart.data.labels.length >= 10) {
+                    diskChart.data.labels.shift();
+                    diskChart.data.datasets[0].data.shift();
+                    diskChart.data.datasets[1].data.shift();
+                }
+                diskChart.data.labels.push(time);
+                diskChart.data.datasets[0].data.push(diskRead);
+                diskChart.data.datasets[1].data.push(DiskWrite);
+                diskChart.update();
+            };
+            xhr.send();
+        }
+
+        setInterval(updateData, 2000);
+        updateData();
+    </script>
+</body>
+
+</html>

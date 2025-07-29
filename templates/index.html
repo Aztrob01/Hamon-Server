@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hamon Viewer</title>
+    <!-- Links & Refs -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+
+<body>
+    <div class="main-layout">
+        <div class="container">
+            <div class="info-panel" id="main-panel">
+                <h1 id="Title">Hamon Viewer</h1>
+                <br>
+                <p><strong>Última Atualização:</strong> <span id="timestamp">--:--:--</span></p>
+                <p><strong>Uso Médio do Processador:</strong> <span id="cpu">--%</span></p>
+                <p>Maior uso p/ Processo: <span id="top_cpu">-- / --%</span></p>
+                <p><strong>Memória:</strong> <span id="mem">-- / -- (--%)</span></p>
+                <p>Maior uso p/ Processo: <span id="top_mem">-- (--%)</span></p>
+                <p><strong>Uso do Disco:</strong> <span id="disk">-- / --</span></p>
+                <p><strong>Sistema Operacional:</strong> <span id="os">Unknown</span></p>
+                <p><strong>Processador:</strong> <span id="cpu_info">Unknown</span></p>
+                <p><strong>Tempo Ligado:</strong> <span id="uptime">--:--:--</span></p>
+                <p><strong>Dispositivo (Depuração):</strong> <span id="agent">Unknown</span></p>
+            </div>
+
+            <div class="info-panel" id="configs">
+                <p><strong>Configurações</strong></p>
+                <p>Tema: <button class="buttons" id="default" onclick="changeTheme('null', 'default')">Padrão</button>
+                    <button class="buttons" id="sunday" type="radio"
+                        onclick="changeTheme('null','sunday')">Sunday</button>
+                    <button class="buttons" id="amphibia" type="radio"
+                        onclick="changeTheme('null', 'amphibia')">Amphibia</button>
+                    <button class="buttons" id="colossus" type="radio"
+                        onclick="changeTheme('null', 'colossus')">Colossus</button>
+                    <button class="buttons" id="jhin" type="radio" onclick="changeTheme('null', 'jhin')">Jhin</button>
+                </p>
+            </div>
+        </div>
+
+        <div class="chart-panel">
+            <canvas id="cpuChart" width="400" height="200"></canvas>
+            <br>
+            <canvas id="diskChart" width="400" height="200"></canvas>
+        </div>
+    </div>
+
+
+    <script>
+        const cpuChart = new Chart(document.getElementById("cpuChart"), {
+            type: 'line',
+            data: {
+                labels: [],
+                datasets: [{
+                    label: 'Uso da CPU (%)',
+                    data: [],
+                    borderColor: 'grey',
+                    tension: 0.2
+                }]
+            },
+            options: {
+                scales: {
+                    yAxes: [{
+                        ticks: { beginAtZero: true, max: 100 }
+                    }]
+                }
+            }
+        });
+
+        const diskChart = new Chart(document.getElementById("diskChart"), {
+            type: 'line',
+            data: {
+                labels: [],
+                datasets: [
+                    {
+                        label: 'Leitura (MB/s)',
+                        data: [],
+                        borderColor: 'grey',
+                        tension: 0.2
+                    },
+                    {
+                        label: 'Escrita (MB/s)',
+                        data: [],
+                        borderColor: 'snow',
+                        tension: 0.2
+                    }
+                ]
+            },
+            options: {
+                scales: {
+                    yAxes: [{
+                        ticks: { beginAtZero: true }
+                    }]
+                }
+            }
+        });
+
+        async function updateData() {
+            try {
+                const response = await fetch("/data");
+                const data = await response.json();
+
+                // Texto
+                document.getElementById("timestamp").innerText = data.timestamp;
+                document.getElementById("cpu").innerText = data.cpu_percent + "%";
+                const color = data.cpu_percent <= 50 ? '#4CAF50' : data.cpu_percent < 70 ? '#FFC107' : '#F44336';
+                document.getElementById('cpu').style.color = color;
+                document.getElementById("top_cpu").innerText = `${data.top_cpu_name} (${data.top_cpu_usage})`;
+                document.getElementById("mem").innerText = `${data.mem_used} / ${data.mem_total} (${data.mem_percent}%)`;
+                document.getElementById("top_mem").innerText = `${data.top_mem_name} (${data.top_mem_usage} MB)`;
+                document.getElementById("disk").innerText = `Leitura: ${data.disk_read} / Escrita: ${data.disk_write}`;
+                document.getElementById("os").innerText = data.os;
+                document.getElementById("cpu_info").innerText = data.cpu;
+                document.getElementById("uptime").innerText = data.uptime;
+                document.getElementById("agent").innerText = data.user_agent;
+
+                // Gráficos
+                const time = data.timestamp;
+                const cpu = data.cpu_percent;
+                const read = parseFloat(data.disk_read);
+                const write = parseFloat(data.disk_write);
+
+                if (cpuChart.data.labels.length >= 10) {
+                    cpuChart.data.labels.shift();
+                    cpuChart.data.datasets[0].data.shift();
+                }
+                cpuChart.data.labels.push(time);
+                cpuChart.data.datasets[0].data.push(cpu);
+                cpuChart.update();
+
+                if (diskChart.data.labels.length >= 10) {
+                    diskChart.data.labels.shift();
+                    diskChart.data.datasets[0].data.shift();
+                    diskChart.data.datasets[1].data.shift();
+                }
+                diskChart.data.labels.push(time);
+                diskChart.data.datasets[0].data.push(read);
+                diskChart.data.datasets[1].data.push(write);
+                diskChart.update();
+            } catch (err) {
+                console.error("Erro ao buscar dados:", err);
+            }
+        }
+
+        setInterval(updateData, 2000);
+        updateData();
+
+        function changeTheme(color, name) {
+            const themes = {
+                sunday: {
+                    backgroundImage: "url('/static/themes/sunday.jpg')",
+                    backgroundColor: "",
+                    graphcolorone: "#D1AB4F",
+                    graphcolortwo: "#ACACAC",
+                    graphbasecolor: "rgba(7, 7, 6, 0.3)",
+                    panelcolor: "rgba(7, 7, 6, 0.3)",
+                    textcolor: "#b7b7b7",
+                },
+                amphibia: {
+                    backgroundImage: "url('/static/themes/amphibia.jpg')",
+                    backgroundColor: "",
+                    graphcolorone: "#D1AB4F",
+                    graphcolortwo: "#748E63",
+                    graphbasecolor: "rgba(0, 0, 41, 0.1)",
+                    panelcolor: "rgba(0, 0, 41, 0.1)",
+                    textcolor: "snow",
+                },
+                colossus: {
+                    backgroundImage: "url('/static/themes/colossus.jpeg')",
+                    backgroundColor: "",
+                    graphcolorone: "#C0C78C",
+                    graphcolortwo: "#748E63",
+                    graphbasecolor: "rgba(0, 15, 0, 0.7)",
+                    panelcolor: "rgba(0, 15, 0, 0.7)",
+                    textcolor: "#b7b7b7",
+                },
+                jhin: {
+                    backgroundImage: "url('/static/themes/jhin.jpg')",
+                    backgroundColor: "",
+                    graphcolorone: "#FF0000",
+                    graphcolortwo: "#F6CDCD",
+                    graphbasecolor: "rgba(44, 0, 0, 0.7)",
+                    panelcolor: "rgba(44, 0, 0, 0.7)",
+                    textcolor: "snow",
+                },
+                default: {
+                    backgroundImage: "",
+                    backgroundColor: "#111",
+                    graphcolorone: "grey",
+                    graphcolortwo: "snow",
+                    graphbasecolor: "",
+                    panelcolor: "#222",
+                    textcolor: "#b7b7b7",
+                }
+            };
+
+            const theme = themes[name];
+            if (!theme) return;
+
+            document.body.style.backgroundImage = theme.backgroundImage || "none";
+            document.body.style.backgroundColor = theme.backgroundColor || "none";
+            cpuChart.data.datasets[0].borderColor = theme.graphcolorone || "none";
+            diskChart.data.datasets[0].borderColor = theme.graphcolorone || "none";
+            diskChart.data.datasets[1].borderColor = theme.graphcolortwo || "none";
+            document.body.style.backgroundSize = theme.backgroundImage ? "cover" : "";
+            diskChart.update();
+            cpuChart.update();
+
+            const panel = document.getElementsByClassName("info-panel");
+            for (let p of panel) {
+                p.style.backgroundColor = theme.panelcolor;
+            }
+            const text = document.getElementsByTagName("p");
+            for (let t of text) {
+                t.style.color = theme.textcolor;
+            }
+            const title = document.getElementsByTagName("h1");
+            for (let t of title) {
+                t.style.color = theme.textcolor;
+            }
+            const graphbase = document.getElementsByClassName("chart-panel");
+            for (let g of graphbase) {
+                g.style.backgroundColor = theme.graphbasecolor;
+            }
+        }
+    </script>
+</body>
+
+</html>

@@ -1,13 +1,8 @@
 #(IDEA) personalTheme;
 #(IDEA) changeDelay;
-#(IDEA) themes = ['snow', 'vivid green', 'nighty blue', 'default'];
-	### NOTE: Save prefs in LocalStorage
+#(TODO) Save prefs in LocalStorage
 #(IDEA) hideGraphs;
-
-#(TODO) Nighty, Forest and Ahsoka work
-#(TODO) A little Focus on Graph's Div
-#(BUG) Config Title inheriting h1 settings
-
+#(IDEA) Collect more data = [ 'cpu_thread', 'net' ] 
 
 
 

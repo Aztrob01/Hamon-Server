@@ -24,8 +24,7 @@ last_io = { ### write disk initial informations
 
 
 def get_top_mem_proc():
-    psutil.cpu_percent()
-    processes = [];
+    processes = []
     for p in psutil.process_iter(['pid', 'name', 'memory_info']):
         try:
             if p.info.get('memory_info'):
@@ -39,8 +38,12 @@ def get_top_mem_proc():
     mem_usage = f"{top_proc.info['memory_info'].rss / (1024 **2):.1f}"
     return {'name': top_proc.info['name'], 'mem_usage': mem_usage}
 
+
 def app_run():
     global last_io 
+    psutil.cpu_percent()
+
+    # get data    
     mem = psutil.virtual_memory() 
     cpu_name = cpuinfo.get_cpu_info().get('brand_raw', platform.processor())
     uptime = datetime.datetime.now() - datetime.datetime.fromtimestamp(psutil.boot_time())
@@ -58,7 +61,7 @@ def app_run():
     last_io['write'] = io_counters.write_bytes
     last_io['time'] = now
 
-    # processos em uso maximo
+    # max usage proccesses
     top_proc = get_top_mem_proc()
     top_cpu_proc = max(psutil.process_iter(['name', 'pid', 'cpu_percent']), key=lambda p: p.info.get('cpu_percent', 0))
     top_cpu_name = f"{top_cpu_proc.info['name']} (PID {top_cpu_proc.info['pid']})"
@@ -67,6 +70,7 @@ def app_run():
     return {
         "cpu": cpu_name,
         "cpu_percent": psutil.cpu_percent(interval=None),
+        "cpu_per_thread": psutil.cpu_percent(interval=0.1, percpu=True),
         "top_cpu_name": top_cpu_name,
         "top_cpu_usage": top_cpu_usage,
 

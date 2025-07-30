@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="pt-BR">
+<html lang="us-EN">
 
 <head>
     <meta charset="UTF-8">
@@ -16,21 +16,22 @@
             <div class="info-panel" id="main-panel">
                 <h1 id="Title">Hamon Viewer</h1>
                 <br>
-                <p><strong>Última Atualização:</strong> <span id="timestamp">--:--:--</span></p>
-                <p><strong>Uso Médio do Processador:</strong> <span id="cpu">--%</span></p>
-                <p>Maior uso p/ Processo: <span id="top_cpu">-- / --%</span></p>
-                <p><strong>Memória:</strong> <span id="mem">-- / -- (--%)</span></p>
-                <p>Maior uso p/ Processo: <span id="top_mem">-- (--%)</span></p>
-                <p><strong>Uso do Disco:</strong> <span id="disk">-- / --</span></p>
-                <p><strong>Sistema Operacional:</strong> <span id="os">Unknown</span></p>
-                <p><strong>Processador:</strong> <span id="cpu_info">Unknown</span></p>
-                <p><strong>Tempo Ligado:</strong> <span id="uptime">--:--:--</span></p>
-                <p><strong>Dispositivo (Depuração):</strong> <span id="agent">Unknown</span></p>
+                <p><strong>Last Update:</strong> <span id="timestamp">--:--:--</span></p>
+                <p><strong>Processor's Avarage usage:</strong> <span id="cpu">--%</span></p>
+                <p>By thread: <span id="per_cpu">-- / --%</span></p>
+                <p>Process with Highest use: <span id="top_cpu">-- / --%</span></p>
+                <p><strong>Memory:</strong> <span id="mem">-- / -- (--%)</span></p>
+                <p>Process with Highest use: <span id="top_mem">-- (--%)</span></p>
+                <p><strong>Disk usage:</strong> <span id="disk">-- / --</span></p>
+                <p><strong>Operational System:</strong> <span id="os">Unknown</span></p>
+                <p><strong>Processor:</strong> <span id="cpu_info">Unknown</span></p>
+                <p><strong>uptime:</strong> <span id="uptime">--:--:--</span></p>
+                <p><strong>Agent (debug data):</strong> <span id="agent">Unknown</span></p>
             </div>
 
             <div class="info-panel" id="configs">
-                <p><strong>Configurações</strong></p>
-                <p>Tema: <button class="buttons" id="default" onclick="changeTheme('null', 'default')">Padrão</button>
+                <p><strong>Settings</strong></p>
+                <p>Theme: <button class="buttons" id="default" onclick="changeTheme('null', 'default')">Default</button>
                     <button class="buttons" id="sunday" type="radio"
                         onclick="changeTheme('null','sunday')">Sunday</button>
                     <button class="buttons" id="amphibia" type="radio"
@@ -56,7 +57,7 @@
             data: {
                 labels: [],
                 datasets: [{
-                    label: 'Uso da CPU (%)',
+                    label: 'CPU usage (%)',
                     data: [],
                     borderColor: 'grey',
                     tension: 0.2
@@ -77,13 +78,13 @@
                 labels: [],
                 datasets: [
                     {
-                        label: 'Leitura (MB/s)',
+                        label: 'Reading (MB/s)',
                         data: [],
                         borderColor: 'grey',
                         tension: 0.2
                     },
                     {
-                        label: 'Escrita (MB/s)',
+                        label: 'Writing (MB/s)',
                         data: [],
                         borderColor: 'snow',
                         tension: 0.2
@@ -98,56 +99,6 @@
                 }
             }
         });
-
-        async function updateData() {
-            try {
-                const response = await fetch("/data");
-                const data = await response.json();
-
-                // Texto
-                document.getElementById("timestamp").innerText = data.timestamp;
-                document.getElementById("cpu").innerText = data.cpu_percent + "%";
-                const color = data.cpu_percent <= 50 ? '#4CAF50' : data.cpu_percent < 70 ? '#FFC107' : '#F44336';
-                document.getElementById('cpu').style.color = color;
-                document.getElementById("top_cpu").innerText = `${data.top_cpu_name} (${data.top_cpu_usage})`;
-                document.getElementById("mem").innerText = `${data.mem_used} / ${data.mem_total} (${data.mem_percent}%)`;
-                document.getElementById("top_mem").innerText = `${data.top_mem_name} (${data.top_mem_usage} MB)`;
-                document.getElementById("disk").innerText = `Leitura: ${data.disk_read} / Escrita: ${data.disk_write}`;
-                document.getElementById("os").innerText = data.os;
-                document.getElementById("cpu_info").innerText = data.cpu;
-                document.getElementById("uptime").innerText = data.uptime;
-                document.getElementById("agent").innerText = data.user_agent;
-
-                // Gráficos
-                const time = data.timestamp;
-                const cpu = data.cpu_percent;
-                const read = parseFloat(data.disk_read);
-                const write = parseFloat(data.disk_write);
-
-                if (cpuChart.data.labels.length >= 10) {
-                    cpuChart.data.labels.shift();
-                    cpuChart.data.datasets[0].data.shift();
-                }
-                cpuChart.data.labels.push(time);
-                cpuChart.data.datasets[0].data.push(cpu);
-                cpuChart.update();
-
-                if (diskChart.data.labels.length >= 10) {
-                    diskChart.data.labels.shift();
-                    diskChart.data.datasets[0].data.shift();
-                    diskChart.data.datasets[1].data.shift();
-                }
-                diskChart.data.labels.push(time);
-                diskChart.data.datasets[0].data.push(read);
-                diskChart.data.datasets[1].data.push(write);
-                diskChart.update();
-            } catch (err) {
-                console.error("Erro ao buscar dados:", err);
-            }
-        }
-
-        setInterval(updateData, 2000);
-        updateData();
 
         function changeTheme(color, name) {
             const themes = {
@@ -227,6 +178,60 @@
                 g.style.backgroundColor = theme.graphbasecolor;
             }
         }
+
+        async function updateData() {
+            try {
+                const response = await fetch("/data");
+                const data = await response.json();
+
+                document.getElementById("timestamp").innerText = data.timestamp;
+
+                document.getElementById("cpu").innerText = data.cpu_percent + "%";
+                const color = data.cpu_percent <= 50 ? '#4CAF50' : data.cpu_percent < 70 ? '#FFC107' : '#F44336';
+                document.getElementById('cpu').style.color = color;
+                document.getElementById("top_cpu").innerText = `${data.top_cpu_name} (${data.top_cpu_usage})`;
+                document.getElementById("per_cpu").innerText = `${data.cpu_per_thread}`;
+
+                document.getElementById("mem").innerText = `${data.mem_used} / ${data.mem_total} (${data.mem_percent}%)`;
+                document.getElementById("top_mem").innerText = `${data.top_mem_name} (${data.top_mem_usage} MB)`;
+
+                document.getElementById("disk").innerText = `Read: ${data.disk_read} / Write: ${data.disk_write}`;
+
+                document.getElementById("os").innerText = data.os;
+                document.getElementById("cpu_info").innerText = data.cpu;
+                document.getElementById("uptime").innerText = data.uptime;
+                document.getElementById("agent").innerText = data.user_agent;
+
+                // Graphs
+                const time = data.timestamp;
+                const cpu = data.cpu_percent;
+                const read = parseFloat(data.disk_read);
+                const write = parseFloat(data.disk_write);
+
+                if (cpuChart.data.labels.length >= 10) {
+                    cpuChart.data.labels.shift();
+                    cpuChart.data.datasets[0].data.shift();
+                }
+                cpuChart.data.labels.push(time);
+                cpuChart.data.datasets[0].data.push(cpu);
+                cpuChart.update();
+
+                if (diskChart.data.labels.length >= 10) {
+                    diskChart.data.labels.shift();
+                    diskChart.data.datasets[0].data.shift();
+                    diskChart.data.datasets[1].data.shift();
+                }
+                diskChart.data.labels.push(time);
+                diskChart.data.datasets[0].data.push(read);
+                diskChart.data.datasets[1].data.push(write);
+                diskChart.update();
+            } catch (err) {
+                console.error("Error while trying to fetch data:", err);
+            }
+        }
+
+        setInterval(updateData, 2000);
+        updateData();
     </script>
 </body>
 

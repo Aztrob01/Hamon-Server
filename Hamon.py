@@ -98,7 +98,7 @@ def data():
     return jsonify(app_run())
 if __name__ == "__main__":
     if hasattr(sys, 'frozen'):
-        print('Roubando dados da sua Maquina...')
+        print('Initializing Server...')
         app.run(host="0.0.0.0", port=8080, debug=False, use_reloader=False, threaded=True)
     else:
         app.run(host="0.0.0.0", port=8080, debug=True, threaded=True)

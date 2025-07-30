@@ -16,40 +16,45 @@
             <div class="info-panel" id="main-panel">
                 <h1 id="Title">Hamon Viewer</h1>
                 <br>
-                <p><strong>Last Update:</strong> <span id="timestamp">--:--:--</span></p>
-                <p><strong>Processor's Avarage usage:</strong> <span id="cpu">--%</span></p>
-                <p>Per thread: <span id="per_cpu">-- / --%</span></p>
-                <p>Process with Highest use: <span id="top_cpu">-- / --%</span></p>
-                <p><strong>Memory:</strong> <span id="mem">-- / -- (--%)</span></p>
-                <p>Process with Highest use: <span id="top_mem">-- (--%)</span></p>
-                <p><strong>Disk usage:</strong> <span id="disk">-- / --</span></p>
-                <p><strong>Operational System:</strong> <span id="os">Unknown</span></p>
-                <p><strong>Processor:</strong> <span id="cpu_info">Unknown</span></p>
-                <p><strong>uptime:</strong> <span id="uptime">--:--:--</span></p>
-                <p><strong>Agent (debug data):</strong> <span id="agent">Unknown</span></p>
+                <p data-lang="timestamp"><strong>Last Update:</strong> <span id="timestamp">--:--:--</span></p>
+                <p data-lang="cpu"><strong>Processor's Avarage usage:</strong> <span id="cpu">--%</span></p>
+                <p data-lang="per_cpu">Per thread: <span id="per_cpu">-- / --%</span></p>
+                <p data-lang="top">Process with Highest use: <span id="top_cpu">-- / --%</span></p>
+                <p data-lang="mem"><strong>Memory:</strong> <span id="mem">-- / -- (--%)</span></p>
+                <p data-lang="top">Process with Highest use: <span id="top_mem">-- (--%)</span></p>
+                <p data-lang="disk"><strong>Disk usage:</strong> <span id="disk">-- / --</span></p>
+                <p data-lang="os"><strong>Operational System:</strong> <span id="os">Unknown</span></p>
+                <p data-lang="cpu_info"><strong>Processor:</strong> <span id="cpu_info">Unknown</span></p>
+                <p data-lang="uptime"><strong>uptime:</strong> <span id="uptime">--:--:--</span></p>
+                <p id="agent"></p>
             </div>
 
             <div class="info-panel" id="configs">
-                <p><strong>Settings</strong></p>
-                <p>Theme: <button class="buttons" id="default" onclick="changeTheme('null', 'default')">Default</button>
+                <p data-lang="settings"><strong>Settings</strong></p>
+                <p data-lang="theme">Theme: <button class="buttons" id="default"
+                        onclick="changeTheme('null', 'default')">Default</button>
                     <button class="buttons" id="sunday" type="radio"
                         onclick="changeTheme('null','sunday')">Sunday</button>
                     <button class="buttons" id="amphibia" type="radio"
                         onclick="changeTheme('null', 'amphibia')">Amphibia</button>
                     <button class="buttons" id="colossus" type="radio"
                         onclick="changeTheme('null', 'colossus')">Colossus</button>
-                    <button class="buttons" id="jhin" type="radio" onclick="changeTheme('null', 'jhin')">Jhin</button>
+                    <button class="buttons" id="jhin" type="" onclick="changeTheme('null', 'jhin')">Jhin</button>
                 </p>
+                <p data-lang="hidebug">Hide Debug Data: <button id="hideUI" type="" onclick="hiDebug()">Hide</button>
+                </p>
+                <!-- <p data-lang="lenguage">Lenguage: <button onclick="changeLeng('pt')">PTBR</button> <button
+                        onclick="changeLeng('en')">ENG</button></p> -->
             </div>
         </div>
 
         <div class="chart-panel">
+            <h1>Graphs</h1>
             <canvas id="cpuChart" width="400" height="200"></canvas>
             <br>
             <canvas id="diskChart" width="400" height="200"></canvas>
         </div>
     </div>
-
 
     <script>
         const cpuChart = new Chart(document.getElementById("cpuChart"), {
@@ -200,7 +205,7 @@
                 document.getElementById("os").innerText = data.os;
                 document.getElementById("cpu_info").innerText = data.cpu;
                 document.getElementById("uptime").innerText = data.uptime;
-                document.getElementById("agent").innerText = data.user_agent;
+                document.getElementById("agent").innerHTML = `<strong>Agent (debug data):</strong> ${data.user_agent}`;
 
                 // Graphs
                 const time = data.timestamp;
@@ -230,6 +235,58 @@
             }
         }
 
+        function hiDebug() {
+            const agent = document.getElementById('agent');
+            const button = document.getElementById('hideUI');
+            agent.style.display === "block";
+            if (agent.style.display === "none") {
+                agent.style.display = "block";
+                button.style.backgroundColor = "rgb(0, 57, 21)";
+            } else {
+                agent.style.display = "none";
+                button.style.backgroundColor = "orangered";
+            }
+        }
+
+        /* const addleng = {
+            pt: {
+                timestamp: "Última Atualização:",
+                cpu: "Uso Médio do Processador:",
+                per_cpu: "Por Núcleo:",
+                top: "Processo de Maior uso:",
+                mem: "Memória:",
+                disk: "Uso do Disco:",
+                os: "Sistema Operacional:",
+                cpu_info: "Processador:",
+                uptime: "Tempo Ligado:",
+                settings: "Configurações",
+                theme: "Tema",
+                hidebug: "Esconder Info. de Depuração:",
+                lenguage: "Linguagem",
+            },
+            en: {
+                timestamp: "Last Update:",
+                cpu: "Processor's Avarage usage:",
+                per_cpu: "Per Thread:",
+                top: "Process with Highest use:",
+                mem: "Memory:",
+                disk: "Disk usage:",
+                os: "Operational System:",
+                cpu_info: "Processor:",
+                uptime: "Uptime:",
+                settings: "Settings",
+                theme: "Theme",
+                hidebug: "Hide Debug data:",
+                lenguage: "Lenguage",
+            }
+        }
+        function changeLeng(lang) {
+            const elements = document.querySelectorAll('[data-lang]');
+            elements.forEach(el => {
+                const key = el.getAttribute('data-lang');
+                el.innerText = addleng[lang][key] || el.innerText;
+            });
+        } */
         setInterval(updateData, 2000);
         updateData();
     </script>

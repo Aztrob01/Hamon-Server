@@ -12,8 +12,8 @@ selectMode = 0
 run_proc = 0
 #? psutil/cpuinfo/socket/platform SYS catch
 cpu_info = cpuinfo.get_cpu_info()
-cpu_thrd = psutil.cpu_count()
-cpu_phys = psutil.cpu_count(logical=False)
+threads = psutil.cpu_count()
+cores = psutil.cpu_count(logical=False)
 hst_name = socket.gethostname()
 sys_name = platform.system()
 sys_vers = platform.version()

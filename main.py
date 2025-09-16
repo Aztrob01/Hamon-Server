@@ -99,7 +99,25 @@ def main():
                             "cpu_per": f"{cpu_percent}%",
                             "cpu_upd": cpu_timestamp,
                             "cpu_int": f"{cpu_interval}ms",
-                            "program_interval": mainInterval
+                            "cores": cores,
+                            "threads": threads,
+                            "program_interval": mainInterval,
+                            
+                            "cpu_name": cpu_name,
+                            "sys_name": sys_name,
+                            "sys_vers": sys_vers,
+                            "sys_host": hst_name,
+
+                            "memory_t": memory_t,
+                            "memory_f": f"{memory.free / (1024 **3):.1f}",
+                            "mem_percent": f"{memory.percent}",
+                            "swap_t": swap_t,
+                            "swap_f": f"{swap.free / (1024 ** 3):.1f}",
+                            "mem_all": mem_all,
+
+                            #TODO "directX": directX,
+                            #TODO "gpu_name": gpu_name,
+                            #TODO "gpu_percent": gpu_percent,
                         }
             except KeyboardInterrupt:
                 run_proc.terminate()

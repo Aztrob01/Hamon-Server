@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+
+<body>
+    <p>Processor Usage: <span id="cpu_per">--</span></p>
+    <p>Update Data: <span id="cpu_upd">--</span></p>
+    <p>Interval: <span id="cpu_int">--</span></p>
+</body>
+<script>
+    async function Data_Update() {
+        try {
+            const response = await fetch("/data");
+            const data = await response.json();
+
+            document.getElementById("cpu_per").innerText = data.cpu_per;
+            document.getElementById("cpu_upd").innerText = data.cpu_upd;
+            document.getElementById("cpu_int").innerText = data.program_interval;
+        } catch (err) {
+            console.error("Error while trying to fetch data: ", err)
+        }
+    }
+    setInterval(Data_Update, 500)
+    Data_Update()
+</script>
+
+</html>

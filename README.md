@@ -1,2 +1,5 @@
 # Hamon Server
-An small Hardware Monitor that sends the info for an internal HTML to view on phones or other PCs.
+An lightweight Hardware Monitor that works on a Internal HTML Server for access on any device.
+
+# About Hamon
+# How use

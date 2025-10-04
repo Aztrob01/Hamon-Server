@@ -1,5 +1,5 @@
 .json
 py.py
 .vscode/
-output/data.json
+src/output/data.json
 data.json

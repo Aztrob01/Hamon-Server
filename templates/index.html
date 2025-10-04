@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Visualizer</title>
+</head>
+<body>
+    <!-- main -->
+    <div class="main-container">
+        <p><strong>Total CPU Usage</strong>: <span id="cpu_perc">--%</span></p>
+        <p>Core Speed / Actual Speed: <span id="cpu_tot_speed">--MHz</span> / <span id="cpu_cur_speed">--MHz</span></p>
+        <p>Total Threads / In use: <span id="threads">-- / --</span></p>
+        <p>Number of Cores: <span id="cores"></span></p>
+        <p><strong>RAM Usage</strong>: <span id="mem_usage">--GB</span> of <span id="mem_absolute">--GB</span> <span id="mem_percent"></span></p>
+        <!-- need more data -->
+    </div>
+    <div class="graph-container"></div>
+    <div class="settings"></div>
+</body>
+<script>
+    async function Data_Update() {
+        try {
+            const response = await fetch("/data");
+            const data = await response.json();
+
+            document.getElementById("cpu_perc").innerText = data.cpu_per;
+            document.getelementById("cpu_tot_speed").innerText = data.total_speed;
+            document.getelementById("cpu_cur_speed").innertext = data.current_speed;
+            document.getElementById("threads").innerText = data.threads;
+            document.getElementById("cores").innerText = data.cores;
+
+            document.getelementById("mem_usage").innerText = data.mem_usage;
+            document.getelementById("mem_absolute").innerText = data.mem_absolute;
+            document.getelementById("mem_percent").innerText = data.mem_percent;
+            // document.getelementById("hardware_mem").innerText = data.mem_total;
+            // document.getelementById("virtual_mem").innerText = data.mem_virtual;
+            // document.getelementById("virtual_usage").innerText = data.mem_virtual_usage;
+        } catch (err) {
+            console.error("Error while trying to fetch data: ", err)
+        }
+    }
+    setInterval(Data_Update, 500)
+    Data_Update()
+</script>
+</html>
